@@ -19,60 +19,54 @@
 package db
 
 import (
-  "fmt"
-
-  "github.com/syndtr/goleveldb/leveldb"
-	"github.com/syndtr/goleveldb/leveldb/errors"
-	"github.com/syndtr/goleveldb/leveldb/opt"
-
   // Note: this is not a correct dependency flow, this is a sandbox
   // and should be implemented in eris:db/tendermint
-  "github.com/eris-ltd/common/go/ipfs"
+  // "github.com/eris-ltd/common/go/ipfs"
 
   // IPFS depends on jbenet multihash; include directly for validation
-  "github.com/jbenet/go-multihash"
+  // "github.com/jbenet/go-multihash"
 
-  . "github.com/tendermint/go-common"
+  // . "github.com/tendermint/go-common"
 )
 
 type IpfsDB struct {
-  // first copy the mem-db structure, probably redundant by passing
-  // IPFS calls into goroutines
-  db map[string][]byte
+  // wrap around LevelDB and add functionality for backing up values to IPFS
+  db_wrapper *LevelDB
 }
 
 func NewIpfsDB(name string) (*IpfsDB, error) {
-
-  database := &IpfsDB{db: make(map[string][]byte)}
-  return database
+  leveldb_database, err := NewLevelDB(name)
+  if err != nil {
+    return nil, err
+  }
+  database := &IpfsDB{db_wrapper: leveldb_database}
+  return database, nil
 }
 
 func (db *IpfsDB) Get(key []byte) []byte {
-  return db.db[string(key)]
+  return db.db_wrapper.Get(key)
 }
 
 func (db *IpfsDB) Set(key []byte, value []byte) {
-  db.db[string(key)] = value
+  db.db_wrapper.Set(key, value)
 }
 
 func (db *IpfsDB) SetSync(key []byte, value []byte) {
-  db.db[string(key)] = value
+  db.db_wrapper.SetSync(key, value)
 }
 
 func (db *IpfsDB) Delete(key []byte) {
-  delete(db.db, string(key))
+  db.db_wrapper.Delete(key)
 }
 
 func (db *IpfsDB) DeleteSync(key []byte) {
-  delete(db.db, string(key))
+  db.db_wrapper.DeleteSync(key)
 }
 
 func (db *IpfsDB) Close() {
-  db = nil
+  db.db_wrapper.Close()
 }
 
 func (db *IpfsDB) Print() {
-  for key, value := range db.db {
-    fmt.Printf("[%X]:\t[%X]\n", []byte(key), value)
-  }
+  db.db_wrapper.Print()
 }
