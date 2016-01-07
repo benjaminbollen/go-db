@@ -23,6 +23,7 @@ type DB interface {
 // Database types
 const DBBackendMemDB = "memdb"
 const DBBackendLevelDB = "leveldb"
+const DBBackendIpfsDB = "ipfsdb"
 
 var dbs = NewCMap()
 
@@ -38,6 +39,13 @@ func GetDB(name string) DB {
 		return db
 	case DBBackendLevelDB:
 		db, err := NewLevelDB(path.Join(config.GetString("db_dir"), name+".db"))
+		if err != nil {
+			PanicCrisis(err)
+		}
+		dbs.Set(name, db)
+		return db
+	case DBBackendIpfsDB:
+	  db, err := NewIpfsDB(path.Join(config.GetString("db_dir"), name+".ipfsdb"))
 		if err != nil {
 			PanicCrisis(err)
 		}
