@@ -44,26 +44,37 @@ func NewIpfsDB(name string) (*IpfsDB, error) {
 }
 
 func (db *IpfsDB) Get(key []byte) []byte {
+  // no need foran IPFS call; (in an initial version) there is no attempt
+  // to retrieve values from IPFS that aren't present in levelDB
   return db.db_wrapper.Get(key)
 }
 
 func (db *IpfsDB) Set(key []byte, value []byte) {
+  // TODO: call IPFS to store value
+  // and pin object hash
   db.db_wrapper.Set(key, value)
 }
 
 func (db *IpfsDB) SetSync(key []byte, value []byte) {
+  // TODO: call IPFS to store value - no need for additional synchronicity
+  // and pin object hash
   db.db_wrapper.SetSync(key, value)
 }
 
 func (db *IpfsDB) Delete(key []byte) {
+  // TODO: query levelDB for value first and calculate multihash
+  // then call IPFS to unpin object hash
   db.db_wrapper.Delete(key)
 }
 
 func (db *IpfsDB) DeleteSync(key []byte) {
+  // TODO: query levelDB for value first and calculate multihash
+  // then call IPFS to unpin object hash
   db.db_wrapper.DeleteSync(key)
 }
 
 func (db *IpfsDB) Close() {
+  // no need to do anything
   db.db_wrapper.Close()
 }
 
